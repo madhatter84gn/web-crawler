@@ -1,4 +1,7 @@
-const { normalizeURL } = require("../crawler.mjs")
+const {
+  normalizeURL,
+  getURLsFromHTML
+} = require("../crawler.mjs")
 
 describe('normalizeURL', () => {
   it('should handle stripping protocol http', () => {
@@ -43,11 +46,35 @@ describe('normalizeURL', () => {
     expect(actual).toEqual(expected)
   })
 })
-// A URL string
-// And returns a "normalized" URL. To "normalize" means to "make the same". For example, all of these URLs are the "same page" according to most websites and HTTP standards:
-//
-// https://blog.boot.dev/path/
-// https://blog.boot.dev/path
-// http://blog.boot.dev/path/
-// http://blog.boot.dev/path
-// We want our normalizeURL() function to map all of those same inputs to a single normalized output: blog.boot.dev/path. Keep in mind, the normalized url isn't going to be used to make requests, it's just going to be used to compare URLs to see if they are the same page.*
+
+describe('getURLSFromHTML', () => {
+  it('should handle an absolute URL', () => {
+    const baseURL = "https://blog.boot.dev";
+    const inputHTML = `
+      <html>
+        <body>
+          <a href="https://blog.boot.dev">Boot.dev</a>
+        </body>
+      </html>
+  `;
+    const expected = ['https://blog.boot.dev/']
+    const actual = getURLsFromHTML(inputHTML, baseURL)
+
+    expect(actual).toEqual(expected)
+  })
+
+  it('should handle a relative url', () => {
+    const baseURL = "https://blog.boot.dev";
+    const inputHTML = `
+      <html>
+        <body>
+          <a href="https:/path1">Boot.dev</a>
+        </body>
+      </html>
+  `;
+    const expected = ['https://blog.boot.dev/path1']
+    const actual = getURLsFromHTML(inputHTML, baseURL)
+
+    expect(actual).toEqual(expected)
+  })
+})
