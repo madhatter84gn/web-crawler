@@ -1,5 +1,4 @@
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
+import { JSDOM } from 'jsdom'
 
 function normalizeURL(url) {
   const urlObject = new URL(url)
@@ -29,7 +28,30 @@ function getURLsFromHTML(html, baseURL) {
   return urls;
 }
 
-module.exports = {
+async function crawlPage(pageAddress) {
+  let response;
+  try {
+    response = await fetch(pageAddress);
+  } catch (err) {
+    throw new Error(`A network error has occurred: ${err.message}`)
+  }
+
+  if (response.status >= 400) {
+    console.log('Http Error: ${response.status} ${response.text}')
+  }
+
+  const contentType = response.headers.get('content-type')
+  if (!contentType || !contentType.includes('text/html')) {
+    console.log(`Response does not contain correct response type: ${contentType}`)
+    return
+  }
+
+  console.log(await response.text())
+}
+
+export {
   normalizeURL,
   getURLsFromHTML,
+  crawlPage
 }
+

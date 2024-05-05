@@ -1,6 +1,7 @@
 const {
   normalizeURL,
-  getURLsFromHTML
+  getURLsFromHTML,
+  crawlPage
 } = require("../crawler.mjs")
 
 describe('normalizeURL', () => {

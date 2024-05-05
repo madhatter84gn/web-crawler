@@ -1,6 +1,7 @@
 import { argv, exit } from 'node:process';
+import { crawlPage } from './crawler.mjs';
 
-function main() {
+async function main() {
   if (argv.length < 3) {
     console.log('To few arguments')
     exit()
@@ -11,7 +12,9 @@ function main() {
     exit()
   }
 
-  console.log(`The webcrawler is starting with a baseURL of ${argv[2]}`)
+  const baseURL = argv[2]
+  console.log(`The webcrawler is starting with a baseURL of ${baseURL}`)
+  await crawlPage(baseURL)
 }
 
 main()
