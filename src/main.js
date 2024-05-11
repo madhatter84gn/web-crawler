@@ -1,5 +1,6 @@
 import { argv, exit } from 'node:process';
 import { crawlPage } from './crawler.mjs';
+import { sortPages, printReport } from './report.mjs'
 
 async function main() {
   if (argv.length < 3) {
@@ -15,8 +16,10 @@ async function main() {
   const baseURL = argv[2]
   console.log(`The webcrawler is starting with a baseURL of ${baseURL}`)
   const pages = await crawlPage(baseURL)
+  console.log('Sorting Pages');
+  const sortedPages = sortPages(pages);
 
-  console.log(pages)
+  printReport(sortedPages)
 }
 
 main()
