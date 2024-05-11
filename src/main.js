@@ -14,7 +14,9 @@ async function main() {
 
   const baseURL = argv[2]
   console.log(`The webcrawler is starting with a baseURL of ${baseURL}`)
-  await crawlPage(baseURL)
+  const pages = await crawlPage(baseURL)
+
+  console.log(pages)
 }
 
 main()

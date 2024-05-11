@@ -28,25 +28,58 @@ function getURLsFromHTML(html, baseURL) {
   return urls;
 }
 
-async function crawlPage(pageAddress) {
-  let response;
+async function fetchHTML(url) {
+  let response
   try {
-    response = await fetch(pageAddress);
+    response = await fetch(url)
   } catch (err) {
-    throw new Error(`A network error has occurred: ${err.message}`)
+    throw new Error(`Got Network error: ${err.message}`)
   }
 
-  if (response.status >= 400) {
-    console.log('Http Error: ${response.status} ${response.text}')
+  if (response.status > 399) {
+    throw new Error(`Got HTTP error: ${response.status} ${response.statusText}`)
   }
 
   const contentType = response.headers.get('content-type')
   if (!contentType || !contentType.includes('text/html')) {
-    console.log(`Response does not contain correct response type: ${contentType}`)
-    return
+    throw new Error(`Got non-HTML response: ${contentType}`)
   }
 
-  console.log(await response.text())
+  return response.text()
+}
+
+async function crawlPage(baseURL, currentURL = baseURL, pages = {}) {
+  const currentURLObj = new URL(currentURL);
+  const baseURLObj = new URL(baseURL);
+
+  if (currentURLObj.hostname !== baseURLObj.hostname) {
+    return pages;
+  }
+
+  const normCurrent = normalizeURL(currentURL);
+
+  if (pages[normCurrent] > 0) {
+    pages[normCurrent]++;
+    return pages
+  }
+
+  pages[normCurrent] = 1;
+
+  console.log(`Crawling... ${currentURL}`)
+  let html = ''
+  try {
+    html = await fetchHTML(currentURL);
+  } catch (err) {
+    console.log(err.message)
+    return pages;
+  }
+
+  const nextURLS = getURLsFromHTML(html, baseURL)
+  for (const nextURL of nextURLS) {
+    pages = await crawlPage(baseURL, nextURL, pages)
+  }
+
+  return pages;
 }
 
 export {
